@@ -9,22 +9,27 @@ import {
   Select,
   MenuItem,
 } from "@material-ui/core";
-import useStyles from "./styles";
 import { ExpenseTrackerContext } from "../../../context/context";
 import { v4 as uuidv4 } from "uuid";
+
+import formatDate from "../../../utils/formatDate";
+import useStyles from "./styles";
+import {
+  expenseCategories,
+  incomeCategories,
+} from "../../../constants/categories";
 
 const Form = () => {
   const initialState = {
     amount: "",
     category: "",
     type: "Income",
-    date: new Date(),
+    date: formatDate(new Date()),
   };
 
   const classes = useStyles();
   const [formData, setFormData] = useState(initialState);
   const { addTransaction } = useContext(ExpenseTrackerContext);
-
 
   const createTransaction = (e) => {
     e.preventDefault();
@@ -37,6 +42,8 @@ const Form = () => {
     setFormData(initialState);
   };
 
+  const selectedCategories =
+    formData.type === "Income" ? incomeCategories : expenseCategories;
 
   return (
     <Grid container spacing={2}>
@@ -59,15 +66,18 @@ const Form = () => {
       </Grid>
       <Grid item xs={6}>
         <FormControl fullWidth>
-          <InputLabel>Category(dk1.07)</InputLabel>
+          <InputLabel>Category</InputLabel>
           <Select
             value={formData.category}
             onChange={(e) =>
               setFormData({ ...formData, category: e.target.value })
             }
           >
-            <MenuItem value="business">Business</MenuItem>
-            <MenuItem value="salary">Salary</MenuItem>
+            {selectedCategories.map((c) => (
+              <MenuItem key={c.type} value={c.type}>
+                {c.type}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
       </Grid>
@@ -86,7 +96,9 @@ const Form = () => {
           label="Date"
           fullWidth
           value={formData.date}
-          onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+          onChange={(e) =>
+            setFormData({ ...formData, date: formatDate(e.target.value) })
+          }
         />
       </Grid>
       <Button
